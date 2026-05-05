@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Для тебя ❤️</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #1a1a1a, #000);
+  color: white;
+  text-align: center;
+  overflow: hidden;
+}
+
+.screen {
+  display: none;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.active { display: flex; }
+
+h1 { font-size: 2.5em; }
+p { font-size: 1.2em; max-width: 600px; }
+
+button {
+  padding: 12px 25px;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background: #ff4d6d;
+  color: white;
+  margin-top: 15px;
+}
+
+.gallery img {
+  width: 200px;
+  border-radius: 15px;
+  margin: 10px;
+}
+
+#gameArea {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  border: 2px solid white;
+}
+
+#heartTarget {
+  position: absolute;
+  font-size: 30px;
+  cursor: pointer;
+}
+
+.heart {
+  position: absolute;
+  color: #ff4d6d;
+  animation: float 6s linear infinite;
+}
+
+@keyframes float {
+  from { transform: translateY(100vh); }
+  to { transform: translateY(-10vh); }
+}
+
+/* fake bug */
+.bug {
+  font-family: monospace;
+  color: #ff4d6d;
+}
+</style>
+</head>
+<body>
+
+<div class="screen active" id="screen1">
+  <h1>У меня для тебя кое-что есть ❤️</h1>
+  <button onclick="nextScreen()">Начать</button>
+</div>
+
+<div class="screen" id="screen2">
+  <p id="text"></p>
+</div>
+
+<div class="screen" id="screen3">
+  <h1>Поймай любовь 😄</h1>
+  <p>У тебя есть 10 секунд</p>
+  <div id="gameArea">
+    <div id="heartTarget">❤️</div>
+  </div>
+  <p id="score">0 / 5</p>
+  <p id="timer">⏳ 10</p>
+</div>
+
+<div class="screen" id="winScreen">
+  <h1>Ты справился,красавчик 😏❤️</h1>
+  <button onclick="goToPhotos()">Продолжить</button>
+</div>
+
+<div class="screen" id="loseScreen">
+  <h1>Неа 😄 попробуй ещё раз, а то чё как лох</h1>
+  <button onclick="restartGame()">Ещё раз</button>
+</div>
+
+<div class="screen" id="screen4">
+  <h1>Небольшое напоминание о том, кто лучшая пара в это мире ❤️</h1>
+  <div class="gallery">
+    <img src="photo.jpg">
+  </div>
+  <button onclick="triggerBug()">Дальше</button>
+</div>
+
+<!-- фейковый баг -->
+<div class="screen" id="bugScreen">
+  <h1>⚠ Ошибка</h1>
+  <p class="bug">FatalError: Pavel_not_found.exe</p>
+  <p class="bug">Инициализация модуля: love_for_Pavel...</p>
+  <p class="bug">Статус: критическая зависимость отсутствует</p>
+  <p class="bug">Попытка восстановления...</p>
+  <button onclick="fixBug()">Попробовать починить</button>
+</div>
+
+<div class="screen" id="screen5">
+  <h1 id="secretTrigger">Ты наверняка не знаешь, кого я обожаю и люблю. Так вот... ❤️</h1>
+  <p>ТЕБЯ, вредина моя любимая!!!</p>
+</div>
+
+<div class="screen" id="easterEgg">
+  <h1>😏 Ты нашёл секрет</h1>
+  <p>Ты самый крутой!!! Но этот секрет должна знать только я.</p>
+</div>
+
+<script>
+const messages = [
+  "Я захотела сделать что-то своими руками",
+  "Да, я не программист............ 😄",
+  "Но я старалась❤️"
+];
+
+let i = 0;
+
+function nextScreen() {
+  document.getElementById("screen1").classList.remove("active");
+  document.getElementById("screen2").classList.add("active");
+  showText();
+}
+
+function showText() {
+  if (i < messages.length) {
+    document.getElementById("text").innerText = messages[i];
+    i++;
+    setTimeout(showText, 2000);
+  } else {
+    setTimeout(() => {
+      document.getElementById("screen2").classList.remove("active");
+      startGame();
+    }, 1000);
+  }
+}
+
+let score = 0;
+let time = 10;
+let timerInterval;
+const heart = document.getElementById("heartTarget");
+
+function startGame() {
+  document.getElementById("screen3").classList.add("active");
+
+  score = 0;
+  time = 10;
+
+  document.getElementById("score").innerText = "0 / 5";
+  document.getElementById("timer").innerText = "⏳ 10";
+
+  moveHeart();
+
+  clearInterval(timer);
+
+  timerInterval = setInterval(() => {
+    time--;
+    document.getElementById("timer").innerText = "⏳ " + time;
+
+    if (time <= 0) {
+      endGame();
+    }
+  }, 1000);
+}
+
+function moveHeart() {
+  const heart = document.getElementById("heartTarget");
+
+  if (!heart) return;
+
+  heart.style.left = Math.random() * 250 + "px";
+  heart.style.top = Math.random() * 250 + "px";
+}
+document.getElementById("heartTarget").onclick = () => {
+  score++;
+  document.getElementById("score").innerText = score + " / 5";
+
+  moveHeart();
+
+  if (score >= 5) {
+    endGame();
+  }
+};
+
+function endGame() {
+  clearInterval(timerInterval);
+  document.getElementById("screen3").classList.remove("active");
+  if (score >= 5) {
+    document.getElementById("winScreen").classList.add("active");
+  } else {
+    document.getElementById("loseScreen").classList.add("active");
+  }
+}
+
+function restartGame() {
+  score = 0;
+  time = 10;
+  document.getElementById("loseScreen").classList.remove("active");
+  document.getElementById("score").innerText = "0 / 5";
+  document.getElementById("timer").innerText = "⏳ 10";
+  startGame();
+}
+
+function goToPhotos() {
+  document.getElementById("winScreen").classList.remove("active");
+  document.getElementById("screen4").classList.add("active");
+}
+
+// запуск фейкового бага
+function triggerBug() {
+  document.getElementById("screen4").classList.remove("active");
+  document.getElementById("bugScreen").classList.add("active");
+
+  const logs = [
+    "Поиск Павел...",
+    "Павел найден ❤️",
+    "Инициализация системы совместимости...",
+    "Pavel + Anastasya = 100% 💖",
+    "Загрузка чувств...",
+    "Ошибка: слишком много любви",
+    "Исправление..."
+  ];
+  const delays = [1500, 1500, 1500, 1600, 1500, 1500, 1500];
+
+  function showLog(index) {
+    if (index >= logs.length) {
+      setTimeout(fixBug, 1500);
+      return;
+    }
+
+    setTimeout(() => {
+      const p = document.createElement("p");
+      p.className = "bug";
+      p.innerText = logs[index];
+      document.getElementById("bugScreen").appendChild(p);
+      showLog(index + 1);
+    }, delays[index]);
+  }
+
+  showLog(0);
+}
+
+function fixBug() {
+  document.getElementById("bugScreen").classList.remove("active");
+  document.getElementById("screen5").classList.add("active");
+}
+
+let clicks = 0;
+document.addEventListener("click", (e) => {
+  if (e.target.id === "secretTrigger") {
+    clicks++;
+    if (clicks >= 5) {
+      document.getElementById("screen5").classList.remove("active");
+      document.getElementById("easterEgg").classList.add("active");
+    }
+  }
+});
+
+function createHeart() {
+  const heartEl = document.createElement("div");
+  heartEl.classList.add("heart");
+  heartEl.innerText = "❤";
+  heartEl.style.left = Math.random() * 100 + "vw";
+  document.body.appendChild(heartEl);
+  setTimeout(() => heartEl.remove(), 6000);
+}
+
+setInterval(createHeart, 300);
+</script>
+
+</body>
+</html>
